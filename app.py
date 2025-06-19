@@ -60,9 +60,8 @@ def generate():
         style_dirs.append(temp_dir)
 
     output_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
-    result_path = generate_name_image(name, style_dirs, output_file, height=height, transparent=transparent)
-    return send_file(result_path, mimetype='image/png')
+import os
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
