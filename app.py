@@ -66,7 +66,7 @@ def generate():
         extracted_dir = extract_and_flatten_zip(zip_file)
         style_dirs.append(extracted_dir)
 
-    output_file = tempfile.NamedTemporaryFile(delete=False, suffix=\".png\").name
+    output_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png").name
     result_path = generate_name_image(name, style_dirs, output_file, height=height, transparent=transparent)
     return send_file(result_path, mimetype='image/png')
 
