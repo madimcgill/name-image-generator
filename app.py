@@ -1,4 +1,4 @@
-≈from PIL import Image
+from PIL import Image
 import os
 from flask import Flask, request, send_file
 import zipfile
