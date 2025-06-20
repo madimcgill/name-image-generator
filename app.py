@@ -8,8 +8,22 @@ app = Flask(__name__)
 
 def trim_whitespace(image):
     image = image.convert("RGBA")
-    bbox = image.getbbox()
-    return image.crop(bbox) if bbox else image
+    datas = image.getdata()
+
+    # Create a bounding box of non-transparent pixels
+    non_empty_pixels = [(x % image.width, x // image.width) 
+                        for x, p in enumerate(datas) if p[3] != 0]
+
+    if not non_empty_pixels:
+        return image
+
+    min_x = min(x for x, y in non_empty_pixels)
+    max_x = max(x for x, y in non_empty_pixels)
+    min_y = min(y for x, y in non_empty_pixels)
+    max_y = max(y for x, y in non_empty_pixels)
+
+    cropped = image.crop((min_x, min_y, max_x + 1, max_y + 1))
+    return cropped
 
 def extract_and_flatten_zip(zip_file, label):
     temp_dir = tempfile.mkdtemp()
@@ -30,7 +44,7 @@ def extract_and_flatten_zip(zip_file, label):
 
     return temp_dir
 
-def generate_name_image(name, style_dirs, output_path, height=400, spacing=-5, transparent=True):
+def generate_name_image(name, style_dirs, output_path, height=400, spacing=-10, transparent=True):
     letter_images = []
     for i, letter in enumerate(name.upper()):
         style_dir = style_dirs[i % len(style_dirs)]
@@ -86,7 +100,7 @@ def generate():
 
 if __name__ == '__main__':
     import os
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host='0.0.0.0', port=port)
 
 # debug redeploy trigger
