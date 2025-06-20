@@ -46,10 +46,25 @@ def generate_name_image(name, style_dirs, output_path, height=400, spacing=-15, 
     letter_images = []
     for i, letter in enumerate(name.upper()):
         style_dir = style_dirs[i % len(style_dirs)]
-        path = os.path.join(style_dir, f"{letter}.png")
-        app.logger.info(f"[build] Looking for letter {letter} in: {path}")
-        if not os.path.exists(path):
+        candidates = [f"{letter}.png", f"{letter.lower()}.png"]
+        
+        found = False
+        for filename in candidates:
+            path = os.path.join(style_dir, filename)
+            if os.path.exists(path):
+                found = True
+                app.logger.info(f"[build] Using: {path}")
+                img = Image.open(path)
+                trimmed = trim_whitespace(img)
+                aspect_ratio = trimmed.width / trimmed.height
+                new_width = int(height * aspect_ratio)
+                resized = trimmed.resize((new_width, height), Image.Resampling.LANCZOS)
+                letter_images.append(resized)
+                break
+
+        if not found:
             raise FileNotFoundError(f"[build] Missing letter: {letter} in style {i % len(style_dirs) + 1}")
+
         img = Image.open(path)
         trimmed = trim_whitespace(img)
 
